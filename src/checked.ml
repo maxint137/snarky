@@ -44,9 +44,13 @@ module T0 = struct
     | Next_auxiliary k -> Next_auxiliary (fun x -> bind (k x) ~f)
 end
 
-module Basic : Checked_intf.Basic with type ('a, 's, 'f) t = ('a, 's, 'f) t =
-struct
+module Basic :
+  Checked_intf.Basic
+  with type ('a, 's, 'f) t = ('a, 's, 'f) t
+   and type 'f field = 'f = struct
   type nonrec ('a, 's, 'f) t = ('a, 's, 'f) t
+
+  type 'f field = 'f
 
   include Monad_let.Make3 (T0)
 
@@ -68,7 +72,9 @@ struct
 end
 
 module Make (Basic : Checked_intf.Basic) :
-  Checked_intf.S with type ('a, 's, 'f) t = ('a, 's, 'f) Basic.t = struct
+  Checked_intf.S
+  with type ('a, 's, 'f) t = ('a, 's, 'f) Basic.t
+   and type 'f field = 'f Basic.field = struct
   include Basic
 
   let request_witness (typ : ('var, 'value, 'field) Types.Typ.t)
@@ -139,7 +145,11 @@ end
 
 module T = struct
   include (
-    Make (Basic) : Checked_intf.S with type ('a, 's, 'f) t := ('a, 's, 'f) t)
+    Make
+      (Basic) :
+      Checked_intf.S
+      with type ('a, 's, 'f) t := ('a, 's, 'f) t
+       and type 'f field = 'f )
 end
 
 include T

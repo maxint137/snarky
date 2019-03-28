@@ -1665,13 +1665,22 @@ end
 module Make (Backend : Backend_intf.S) = struct
   module Backend_extended = Backend_extended.Make (Backend)
   module Runner0 = Runner.Make (Backend_extended)
-  module Basic = Make_basic (Backend_extended) (struct
-    include Checked
 
-    type field = Backend_extended.Field.t
+  module Basic =
+    Make_basic
+      (Backend_extended)
+      (struct
+        include (
+          Checked :
+            Checked_intf.S
+            with type ('a, 's, 'f) t = ('a, 's, 'f) Checked.t
+             and type 'f field := 'f )
 
-    let run = Runner0.run
-  end)
+        type field = Backend_extended.Field.t
+
+        let run = Runner0.run
+      end)
+
   include Basic
   module Number = Number.Make (Basic)
   module Enumerable = Enumerable.Make (Basic)
